@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.17)
+project(Midi_Parser)
+
+#https://cmake.org/cmake/help/v3.12/command/string.html
+string(TIMESTAMP DATE "%Y%m%d%H%M")
+
+set(CMAKE_CXX_STANDARD 14)
+
+add_subdirectory(./tests/valgrind)
+
+add_executable(Midi_Parser src/main.cpp src/midi_file.cpp include/midi_file.h)
