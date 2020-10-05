@@ -14,7 +14,6 @@ MidiFile::MidiFile(const std::string& path) {
         if(!midi_file){
             std::cerr << "File not found" << std::endl;
         } else{
-            std::cout << "exist" << std::endl;
             this -> file_name_ = path;
             midi_file.read(this -> header_chunk_,HEADER_CHUNK_SIZE);
         }
