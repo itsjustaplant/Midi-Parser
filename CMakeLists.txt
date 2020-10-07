@@ -5,7 +5,7 @@ project(Midi_Parser)
 string(TIMESTAMP DATE "%Y%m%d%H%M")
 
 set(CMAKE_CXX_STANDARD 14)
-
 add_subdirectory(./tests/valgrind)
+
 
 add_executable(midi_parser src/main.cpp src/midi_file.cpp include/midi_file.h)

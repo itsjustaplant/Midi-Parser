@@ -7,15 +7,16 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     if(argc == 2){
-        MidiFile midi_file(argv[1]);
-        midi_file.ReadHeaderChunk();
+        std::ifstream midi_file_f(argv[1], std::ios::in | std::ios::binary);
+        MidiFile* midi_file = new MidiFile(argv[1], &midi_file_f );
+        midi_file -> ReadHeaderChunk();
 
         string command;
         cout << ">> ";
         cin >> command;
         while(command != "exit"){
             if(command == "info"){
-                midi_file.PrintInfo();
+                midi_file->PrintMetaData();
             } else if(command == "usage"){
                 cout << USAGE << endl;
             } else{
@@ -24,6 +25,9 @@ int main(int argc, char* argv[]) {
             cout << ">> ";
             cin >> command;
         }
+        midi_file -> ReadTrackChunk(&midi_file_f);
+        midi_file->ClearChunks();
+        delete midi_file;
     } else{
         cout << USAGE << endl;
     }
