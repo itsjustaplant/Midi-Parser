@@ -1,4 +1,3 @@
-
 #include "../include/midi_file.h"
 using namespace std;
 #define USAGE  \
@@ -6,9 +5,10 @@ using namespace std;
     "            path: path of the input file " \
 
 int main(int argc, char* argv[]) {
+
     if(argc == 2){
-        std::ifstream midi_file_f(argv[1], std::ios::in | std::ios::binary);
-        MidiFile* midi_file = new MidiFile(argv[1], &midi_file_f );
+        std::ifstream file(argv[1], std::ios::in | std::ios::binary);
+        auto* midi_file = new MidiFile(argv[1], &file );
         midi_file -> ReadHeaderChunk();
 
         string command;
@@ -18,15 +18,14 @@ int main(int argc, char* argv[]) {
             if(command == "info"){
                 midi_file->PrintMetaData();
             } else if(command == "usage"){
-                cout << USAGE << endl;
+                cout <<"\033[34m" << USAGE << "\033[0m" << endl;
             } else{
                 cout << "No command" << endl;
             }
             cout << ">> ";
             cin >> command;
         }
-        midi_file -> ReadTrackChunk(&midi_file_f);
-        midi_file->ClearChunks();
+        midi_file -> ReadTrackChunk(&file);
         delete midi_file;
     } else{
         cout << USAGE << endl;

@@ -3,10 +3,7 @@
 //
 
 #include "../include/midi_file.h"
-void MidiFile::ClearChunks() const {
-    delete[] this -> header_chunk_;
-    delete[] this -> track_chunk_;
-}
+
 void MidiFile::SetSize(std::ifstream* midi_file) {
     int begin, end;
     begin = (*midi_file).tellg();
@@ -16,7 +13,7 @@ void MidiFile::SetSize(std::ifstream* midi_file) {
     this -> size_ = end - begin;
 }
 
-MidiFile::MidiFile(const std::string& path, std::ifstream* midi_file) {
+MidiFile::MidiFile(const std::string& path, std::ifstream* file) {
 
     //Allocate header_chunk_ here to avoid free empty memory block if the midi file is not valid
     this -> header_chunk_ = new char[HEADER_CHUNK_SIZE];
@@ -25,16 +22,25 @@ MidiFile::MidiFile(const std::string& path, std::ifstream* midi_file) {
     if(path.size() >= 50){
         std::cerr << "File name cannot be longer than 50 characters" << std::endl;
     } else{
-        if(!midi_file){
+        if(!file){
             std::cerr << "File not found" << std::endl;
         } else{
             this -> file_name_ = path;
-            this -> SetSize(midi_file);
-            midi_file -> read(this -> header_chunk_, HEADER_CHUNK_SIZE);
-            midi_file -> read(this -> temp_track_chunk_ , TRACK_CHUNK_SIZE);
+            this -> SetSize(file);
+            file -> read(this -> header_chunk_, HEADER_CHUNK_SIZE);
+            file -> read(this -> temp_track_chunk_ , TRACK_CHUNK_SIZE);
         }
     }
 }
+MidiFile::~MidiFile() {
+    if(this -> validity_){
+        for (int i = 0; i < this->track_count_; ++i) {
+            delete this -> tracks_[i].data;
+        }
+        delete[] this -> tracks_;
+    }
+}
+
 void MidiFile::CheckValidity(){
     std::string MThd_binary;
     for (int i = 0; i < CHUNK_TYPE_SIZE; ++i) {
@@ -44,26 +50,37 @@ void MidiFile::CheckValidity(){
     this->validity_ = ((this -> header_chunk_type_) == MThd_binary) ? 1 : 0;
 }
 void MidiFile::ReadTrackChunk(std::ifstream* midi_file) {
-    std::string temp_type;
-    std::string temp_length;
-    std::string temp_data;
+    this -> tracks_ = new Track[this -> track_count_];
 
-    for (int i = 0; i < 4; ++i) {
-        temp_type.append(std::bitset<8>(this -> temp_track_chunk_[i]).to_string());
-    }
-    for (int i = 4; i < 8; ++i) {
-        temp_length.append(std::bitset<8>(this -> temp_track_chunk_[i]).to_string());
-    }
-    this -> track_length_ = std::stoi(temp_length, nullptr, 2);
-    //Sets position the beginning of the TRACK_CHUNK section
-    midi_file->seekg(14, std::ios::beg);
-    this -> track_chunk_  = new char[TRACK_CHUNK_SIZE + this -> track_length_];
+    for (int i = 0; i < this -> track_count_; ++i) {
+        std::string temp_type = "";
+        std::string temp_length = "";
+        std::string temp_data = "";
+        for (int j = 0; j < 4; ++j) {
+            temp_type.append(std::bitset<8>(this -> temp_track_chunk_[j]).to_string());
+        }
 
-    midi_file -> read(this -> track_chunk_, TRACK_CHUNK_SIZE + this -> track_length_);
-    for (int i = 8; i < 8 + track_length_; ++i) {
-        temp_data.append(std::bitset<8>(this -> track_chunk_[i]).to_string());
+        for (int k = 4; k < 8; ++k) {
+            temp_length.append(std::bitset<8>(this -> temp_track_chunk_[k]).to_string());
+        }
+        this -> tracks_[i].length = std::stoi(temp_length, nullptr, 2);
+
+        //Sets position the beginning of the TRACK_CHUNK section
+        this -> tracks_[i].data = new char[this -> tracks_[i].length];
+        midi_file -> read(this -> tracks_[i].data, this -> tracks_[i].length);
+
+
+        for (int m = 0; m < this -> tracks_[i].length; ++m) {
+            temp_data.append(std::bitset<8>(this -> tracks_[i].data[m]).to_string());
+        }
+        midi_file->read(this -> temp_track_chunk_, TRACK_CHUNK_SIZE);
+
     }
 
+    //Initializes to struct to hold every track chunk in a structure
+    //This will help us to read track chunks with one method
+
+    //temporary is destroyed here
     delete[] this -> temp_track_chunk_;
     midi_file->close();
 }
@@ -84,6 +101,7 @@ void MidiFile::ReadHeaderChunk() {
     //Call CheckValidity to validate the midi file
     this -> CheckValidity();
 
+
     if(this -> validity_){
         for (int i = 4; i < 8; ++i) {
             temp_length.append(std::bitset<8>(this -> header_chunk_[i]).to_string());
@@ -100,7 +118,7 @@ void MidiFile::ReadHeaderChunk() {
 
         this -> header_length_   = std::stoi(temp_length  ,nullptr,2);
         this -> format_          = std::stoi(temp_format  ,nullptr,2);
-        this -> tracks_          = std::stoi(temp_track   ,nullptr,2);
+        this -> track_count_     = std::stoi(temp_track   , nullptr, 2);
 
         if(temp_division[15] == '0'){
             this -> division_    = std::stoi(temp_division, nullptr, 2);
@@ -119,16 +137,16 @@ void MidiFile::ReadHeaderChunk() {
         std::cerr << "Not a valid MIDI file" << std::endl;
         exit(0);
     }
+    delete[] this -> header_chunk_;
 }
 void MidiFile::PrintMetaData() const {
-    //std::cout << this->file_name_ << ":" << " Standard MIDI data (format " << this->format_ << ") using " << this -> tracks_ << " at " << this->division_<< std::endl;
-    std::cout << "name:       " << this -> file_name_       << std::endl;
-    std::cout << "format:     " << this -> format_          << std::endl;
-    std::cout << "tracks:     " << this -> tracks_          << std::endl;
-    std::cout << "resolution  ";
-    (this -> frames_ !=0) ? (std::cout << this -> frames_):(std::cout << this -> division_);
-    std:: cout << std::endl;
-    std::cout << "size:       " << this -> size_ << " bytes" << std::endl;
+    //std::cout << this->file_name_ << ":" << " Standard MIDI data (format " << this->format_ << ") using " << this -> track_count_ << " at " << this->division_<< std::endl;
+    //cout << "\033[1;31mbold red text\033[0m\n";
+    std::cout << "\033[33mname:       \033[0m" << this -> file_name_        << std::endl;
+    std::cout << "\033[33mformat:     \033[0m" << this -> format_           << std::endl;
+    std::cout << "\033[33mtracks:     \033[0m" << this -> track_count_      << std::endl;
+    std::cout << "\033[33mresolution  \033[0m" << this -> division_         << std::endl;
+    std::cout << "\033[33msize:       \033[0m" << this -> size_ << " bytes" << std::endl;
 }
 
 
