@@ -35,7 +35,7 @@ MidiFile::MidiFile(const std::string& path, std::ifstream* file) {
 MidiFile::~MidiFile() {
     if(this -> validity_){
         for (int i = 0; i < this->track_count_; ++i) {
-            delete this -> tracks_[i].data;
+            delete this -> tracks_[i].data_;
         }
         delete[] this -> tracks_;
     }
@@ -63,18 +63,19 @@ void MidiFile::ReadTrackChunk(std::ifstream* midi_file) {
         for (int k = 4; k < 8; ++k) {
             temp_length.append(std::bitset<8>(this -> temp_track_chunk_[k]).to_string());
         }
-        this -> tracks_[i].length = std::stoi(temp_length, nullptr, 2);
+        this -> tracks_[i].length_ = std::stoi(temp_length, nullptr, 2);
 
         //Sets position the beginning of the TRACK_CHUNK section
-        this -> tracks_[i].data = new char[this -> tracks_[i].length];
-        midi_file -> read(this -> tracks_[i].data, this -> tracks_[i].length);
+        this -> tracks_[i].data_ = new char[this -> tracks_[i].length_];
+        midi_file -> read(this -> tracks_[i].data_, this -> tracks_[i].length_);
 
-
+/*
         for (int m = 0; m < this -> tracks_[i].length; ++m) {
             temp_data.append(std::bitset<8>(this -> tracks_[i].data[m]).to_string());
         }
+*/
         midi_file->read(this -> temp_track_chunk_, TRACK_CHUNK_SIZE);
-
+        this -> tracks_[i].ReadTrackData();
     }
 
     //Initializes to struct to hold every track chunk in a structure
@@ -147,6 +148,10 @@ void MidiFile::PrintMetaData() const {
     std::cout << "\033[33mtracks:     \033[0m" << this -> track_count_      << std::endl;
     std::cout << "\033[33mresolution  \033[0m" << this -> division_         << std::endl;
     std::cout << "\033[33msize:       \033[0m" << this -> size_ << " bytes" << std::endl;
+    for (int i = 0; i < this->track_count_; ++i) {
+        std::cout << "----------Track" << i+1 << "----------" << std::endl;
+        std::cout <<"\033[33mtrack name:       \033[0m" <<this -> tracks_[i].track_name_ << std::endl;
+    }
 }
 
 

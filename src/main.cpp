@@ -10,6 +10,7 @@ int main(int argc, char* argv[]) {
         std::ifstream file(argv[1], std::ios::in | std::ios::binary);
         auto* midi_file = new MidiFile(argv[1], &file );
         midi_file -> ReadHeaderChunk();
+        midi_file -> ReadTrackChunk(&file);
 
         string command;
         cout << ">> ";
@@ -25,7 +26,7 @@ int main(int argc, char* argv[]) {
             cout << ">> ";
             cin >> command;
         }
-        midi_file -> ReadTrackChunk(&file);
+
         delete midi_file;
     } else{
         cout << USAGE << endl;

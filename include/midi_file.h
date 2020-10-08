@@ -4,7 +4,7 @@
  */
 #include <iostream>
 #include <fstream>
-#include "Track.h"
+#include "track.h"
 
 #ifndef MIDI_PARSER_MIDI_FILE_H
 #define MIDI_PARSER_MIDI_FILE_H
