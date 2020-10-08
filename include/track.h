@@ -11,7 +11,9 @@ public:
     int unsigned length;
     char* data;
     Track()=default;
+    void ReadTrackData();
 };
+
 
 
 #endif //MIDI_PARSER_TRACK_H
