@@ -148,11 +148,33 @@ void MidiFile::PrintMetaData() const {
     std::cout << "\033[33mtracks:     \033[0m" << this -> track_count_      << std::endl;
     std::cout << "\033[33mresolution  \033[0m" << this -> division_         << std::endl;
     std::cout << "\033[33msize:       \033[0m" << this -> size_ << " bytes" << std::endl;
-    for (int i = 0; i < this->track_count_; ++i) {
+    for (int i = 0; i < this -> track_count_; ++i) {
         std::cout << "----------Track" << i+1 << "----------" << std::endl;
-        std::cout <<"\033[33mtrack name:       \033[0m" <<this -> tracks_[i].track_name_ << std::endl;
+        //I know that the whole code is messy
+        //Nothing good happens after this comment actually
+        //I thought i couldn't more f*ck this up
+        //But yeah, congrats to me, i did
+
+        //A lot of if else
+        //Soon they will be merged in to a method called PleaseStop()
+        if(this -> tracks_[i].event_check_[0] == 1){
+            std::cout <<"\033[33mtext event:       \033[0m" <<this -> tracks_[i].text_event_ << std::endl;
+        } if(this -> tracks_[i].event_check_[2]==1){
+            std::cout <<"\033[33mcopyright:       \033[0m" <<this -> tracks_[i].copyright_ << std::endl;
+        } if(this -> tracks_[i].event_check_[3]==1){
+            std::cout <<"\033[33mtrack name:       \033[0m" <<this -> tracks_[i].track_name_ << std::endl;
+        } if(this -> tracks_[i].event_check_[4]==1){
+            std::cout <<"\033[33minstrument name:  \033[0m" <<this -> tracks_[i].instrument_name_ << std::endl;
+        } if(this -> tracks_[i].event_check_[5]==1){
+            std::cout <<"\033[33mtrack lyric:       \033[0m" <<this -> tracks_[i].lyric_ << std::endl;
+        } if(this -> tracks_[i].event_check_[6]==1){
+            std::cout <<"\033[33mtrack marker:       \033[0m" <<this -> tracks_[i].marker_ << std::endl;
+        } if(this -> tracks_[i].event_check_[7]==1){
+            std::cout <<"\033[33mtrack cue:       \033[0m" <<this -> tracks_[i].cue_point_ << std::endl;
+        }
     }
 }
+
 
 
 
