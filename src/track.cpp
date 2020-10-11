@@ -17,7 +17,7 @@ std::string Track::BinToString(std::string* str){
 
 void Track::SetText() {
     size_t found = this -> temp_data.find("1111111100000001");
-    if (found != std::string::npos){
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
@@ -35,7 +35,8 @@ void Track::SetText() {
 
 void Track::SetCopyright() {
     size_t found = this -> temp_data.find("1111111100000010");
-    if (found != std::string::npos){
+
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
@@ -53,7 +54,7 @@ void Track::SetCopyright() {
 
 void Track::SetTrackName() {
     size_t found = this -> temp_data.find("1111111100000011");
-    if (found != std::string::npos){
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
@@ -71,7 +72,7 @@ void Track::SetTrackName() {
 
 void Track::SetInstrumentName() {
     size_t found = this -> temp_data.find("1111111100000100");
-    if (found != std::string::npos){
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
@@ -89,7 +90,7 @@ void Track::SetInstrumentName() {
 
 void Track::SetLyric() {
     size_t found = this -> temp_data.find("1111111100000101");
-    if (found != std::string::npos){
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
@@ -107,7 +108,7 @@ void Track::SetLyric() {
 
 void Track::SetMarker() {
     size_t found = this -> temp_data.find("1111111100000110");
-    if (found != std::string::npos){
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
@@ -125,7 +126,7 @@ void Track::SetMarker() {
 
 void Track::SetCuePoint() {
     size_t found = this -> temp_data.find("1111111100000111");
-    if (found != std::string::npos){
+    if (found != std::string::npos && found % 8 == 0){
         int position = (int)found / 8;
         std::string temp_length;
         std::string temp_text;
