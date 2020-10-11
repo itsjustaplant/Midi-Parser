@@ -11,11 +11,9 @@ cmake ..
 make
 ```
 ### To do
-* Midi events classifying must be improved
 * Leaks are fixed but several test cases must be implemented
 
 ### Issues
-* ClassifyMetaEvent() method only classifies meta events with delta_time_ = 0x00
 * Code must be refactored
 
 ### Resources
