@@ -1,4 +1,4 @@
-##MIDI meta data extractor
+## MIDI meta data extractor
 
 Simple midi meta data extractor without any library
 ***
